@@ -12,7 +12,7 @@ const async = require("async");
  * &&
  * https://openweathermap.org/appid
  *
- * @type {string}
+ * @type {string}KK
  */
 GEONAME_API_URL = "http://api.geonames.org/";
 GEONAME_API_TIMEZONE = "timezoneJSON";
@@ -58,44 +58,16 @@ const startup = () => {
     bot.on('message', msg => {
         // Make sure we de not reply to our own messages
         if (msg.author.id === bot.user.id) return;
+        if(msg.content != null){
+            switch (msg.content) {
+                case '!heure': heure_command(bot,msg); break;
+                case '!bonjour' : bonjour_command(bot,msg); break;
+                default: return;
+            }
+        }
 
         if (msg.content != null && msg.content === '!heure') {
-            var message;
-            var nce = "";
-            var nou = "";
-            var yqb = "";
-            var msgNce = "";
-            var msgNou = "";
-            var msgYqb = "";
-
-
-            //http://api.geonames.org/timezoneJSON?formatted=true&lat=47.01&lng=10.2&username=demo&style=full
-            request.get(GEONAME_API_URL + GEONAME_API_TIMEZONE + "?formated=true&lat=" + GEONAME_API_NCE_LAT + "&lng=" + GEONAME_API_NCE_LONG + "&username=" + GEONAME_API_USERNAME + "&style=full", (error, response, body) => {
-                if (error) {
-                    return Winston.log('error', "error on NCE : " + error);
-                }
-                nce = JSON.parse(body);
-                msgNce += "Nice : heure : " + nce.time;
-            });
-
-            request.get(GEONAME_API_URL + GEONAME_API_TIMEZONE + "?formated=true&lat=" + GEONAME_API_NOU_LAT + "&lng=" + GEONAME_API_NOU_LONG + "&username=" + GEONAME_API_USERNAME + "&style=full", (error, response, body) => {
-                if (error) {
-                    return Winston.log('error', "error on NOU : " + error);
-                }
-                nou = JSON.parse(body);
-                msgNou += "Nouméa : heure : " + nou.time;
-            });
-
-            request.get(GEONAME_API_URL + GEONAME_API_TIMEZONE + "?formated=true&lat=" + GEONAME_API_NCE_LAT + "&lng=" + GEONAME_API_YQB_LONG + "&username=" + GEONAME_API_USERNAME + "&style=full", (error, response, body) => {
-                if (error) {
-                    return Winston.log('error', "error on YQB : " + error);
-                }
-                yqb = JSON.parse(body);
-                msgYqb += "Quebec : heure : " + yqb.time;
-            });
-
-            message = msgNce + "\n" + msgNou + "\n" + msgYqb;
-            msg.reply(message);
+            heure_command(bot,msg);
         }
 
     });
@@ -110,3 +82,45 @@ const startup = () => {
 };
 
 startup();
+
+const heure_command = (bot,msg) => {
+    var message;
+    var nce = "";
+    var nou = "";
+    var yqb = "";
+    var msgNce = "";
+    var msgNou = "";
+    var msgYqb = "";
+
+    //http://api.geonames.org/timezoneJSON?formatted=true&lat=47.01&lng=10.2&username=demo&style=full
+    request.get(GEONAME_API_URL + GEONAME_API_TIMEZONE + "?formated=true&lat=" + GEONAME_API_NCE_LAT + "&lng=" + GEONAME_API_NCE_LONG + "&username=" + GEONAME_API_USERNAME + "&style=full", (error, response, body) => {
+        if (error) {
+            return Winston.log('error', "error on NCE : " + error);
+        }
+        nce = JSON.parse(body);
+        msgNce += "Nice : heure : " + nce.time;
+    });
+
+    request.get(GEONAME_API_URL + GEONAME_API_TIMEZONE + "?formated=true&lat=" + GEONAME_API_NOU_LAT + "&lng=" + GEONAME_API_NOU_LONG + "&username=" + GEONAME_API_USERNAME + "&style=full", (error, response, body) => {
+        if (error) {
+            return Winston.log('error', "error on NOU : " + error);
+        }
+        nou = JSON.parse(body);
+        msgNou += "Nouméa : heure : " + nou.time;
+    });
+
+    request.get(GEONAME_API_URL + GEONAME_API_TIMEZONE + "?formated=true&lat=" + GEONAME_API_NCE_LAT + "&lng=" + GEONAME_API_YQB_LONG + "&username=" + GEONAME_API_USERNAME + "&style=full", (error, response, body) => {
+        if (error) {
+            return Winston.log('error', "error on YQB : " + error);
+        }
+        yqb = JSON.parse(body);
+        msgYqb += "Quebec : heure : " + yqb.time;
+    });
+
+    message = msgNce + "\n" + msgNou + "\n" + msgYqb;
+    msg.reply(message);
+};
+
+const bonjour_command = (bot,msg) => {
+    msg.reply("Bonjour, comment ça va aujourd'hui ?");
+}
