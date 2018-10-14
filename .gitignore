@@ -62,6 +62,7 @@ typings/
 
 #Discord Token
 auth.json
+.token
 
 #Webstorm files
 .idea

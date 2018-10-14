@@ -1,46 +1,112 @@
-var Discord = require('discord.io');
-
-var logger = require('winston');
-var auth = require('./auth.json');
-
-
-// Configure logger settings
-logger.remove(logger.transports.Console);
-logger.add(logger.transports.Console, {
-    colorize: true
-});
-logger.level = 'debug';
+const Fs = require('fs');
+const Path = require('path');
+const Winston = require('winston');
+const Discord = require('discord.js');
+const Config = require('./config.js')
+const request = require('request');
+const async = require("async");
 
 
-// Initialize Discord Bot
-var bot = new Discord.Client({
-    token: auth.token,
-    autorun: true
-});
+/**Two provider
+ * https://www.geonames.org/export/ws-overview.html
+ * &&
+ * https://openweathermap.org/appid
+ *
+ * @type {string}
+ */
+GEONAME_API_URL = "http://api.geonames.org/";
+GEONAME_API_TIMEZONE = "timezoneJSON";
+GEONAME_API_WEATHER = "weatherJSON";
+GEONAME_API_USERNAME = "hangbot";
+GEONAME_API_NCE_LONG = "7.1827776";
+GEONAME_API_NCE_LAT = "43.7031691";
+GEONAME_API_YQB_LONG = "-71.6218679";
+GEONAME_API_YQB_LAT = "46.8560266";
+GEONAME_API_NOU_LONG = "-22.2643536";
+GEONAME_API_NOU_LAT = "166.4098473";
+GEONAME_API_ICAO_NOU_CODE = "NWWW";
+GEONAME_API_ICAO_NCE_CODE = "LFMN";
+GEONAME_API_ICAO_YQB_CODE = "CYQB";
 
 
-bot.on('ready', function (evt) {
-    logger.info('Connected');
-    logger.info('Logged in as: ');
-    logger.info(bot.username + ' - (' + bot.id + ')');
-});
+const startup = () => {
+    Winston.log('info', 'Starting up...');
 
-bot.on('message', function (user, userID, channelID, message, evt) {
-    // Our bot needs to know if it needs to execute a command
-    // for this script it will listen for messages that will start with `!`
-    if (message.substring(0, 1) == '!') {
-        var args = message.substring(1).split(' ');
-        var cmd = args[0];
+    const bot = new Discord.Client();
+    let isInit = false;
 
-        args = args.splice(1);
+    const init = () => {
+        isInit = true;
+    };
 
-        switch(cmd) {
-            // !ping
-            case 'ping':
-                bot.sendMessage({ to: channelID, message: 'Pong!' });
-                break;
-            default:
-                bot.sendMessage({ to: channelID, message: 'Unknown command.' });
+    bot.on('ready', () => {
+        Winston.log('info', 'I\'m connected to the Discord network!');
+        Winston.log('info', bot.user.username);
+
+
+        // Properly close connection on Ctrl-C
+        process.on('SIGINT', () => {
+            Winston.log('info', 'Shutting down...');
+            bot.destroy().then(() => process.exit());
+        });
+
+        if (!isInit)
+            init();
+    });
+
+    // Respond to messages
+    bot.on('message', msg => {
+        // Make sure we de not reply to our own messages
+        if (msg.author.id === bot.user.id) return;
+
+        if (msg.content != null && msg.content === '!heure') {
+            var message;
+            var nce = "";
+            var nou = "";
+            var yqb = "";
+            var msgNce = "";
+            var msgNou = "";
+            var msgYqb = "";
+
+
+            //http://api.geonames.org/timezoneJSON?formatted=true&lat=47.01&lng=10.2&username=demo&style=full
+            request.get(GEONAME_API_URL + GEONAME_API_TIMEZONE + "?formated=true&lat=" + GEONAME_API_NCE_LAT + "&lng=" + GEONAME_API_NCE_LONG + "&username=" + GEONAME_API_USERNAME + "&style=full", (error, response, body) => {
+                if (error) {
+                    return Winston.log('error', "error on NCE : " + error);
+                }
+                nce = JSON.parse(body);
+                msgNce += "Nice : heure : " + nce.time;
+            });
+
+            request.get(GEONAME_API_URL + GEONAME_API_TIMEZONE + "?formated=true&lat=" + GEONAME_API_NOU_LAT + "&lng=" + GEONAME_API_NOU_LONG + "&username=" + GEONAME_API_USERNAME + "&style=full", (error, response, body) => {
+                if (error) {
+                    return Winston.log('error', "error on NOU : " + error);
+                }
+                nou = JSON.parse(body);
+                msgNou += "Nouméa : heure : " + nou.time;
+            });
+
+            request.get(GEONAME_API_URL + GEONAME_API_TIMEZONE + "?formated=true&lat=" + GEONAME_API_NCE_LAT + "&lng=" + GEONAME_API_YQB_LONG + "&username=" + GEONAME_API_USERNAME + "&style=full", (error, response, body) => {
+                if (error) {
+                    return Winston.log('error', "error on YQB : " + error);
+                }
+                yqb = JSON.parse(body);
+                msgYqb += "Quebec : heure : " + yqb.time;
+            });
+
+            message = msgNce + "\n" + msgNou + "\n" + msgYqb;
+            msg.reply(message);
         }
-    }
-})
+
+    });
+
+    // Connect from the token found in the .token file
+    Fs.readFile('.token', {encoding: 'utf-8'}, (err, data) => {
+        if (err == null)
+            bot.login(data.trimRight());
+        else
+            Winston.log('error', err.message);
+    });
+};
+
+startup();
