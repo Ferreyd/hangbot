@@ -126,9 +126,9 @@ const heure_command_ws = (bot,msg) => {
 const heure_command = (bot,msg) => {
     let now = moment();
 
-    let nice = now.tz('Europe/Paris');
-    let noumea = now.tz('Pacific/Noumea');
-    let quebec = now.tz('America/Montreal');
+    let nice = now.tz('Europe/Paris').format("dddd, Do MMMM YYYY Z");
+    let noumea = now.tz('Pacific/Noumea').format("dddd, Do MMMM YYYY Z");
+    let quebec = now.tz('America/Montreal').format("dddd, Do MMMM YYYY Z");
 
     let message = "Nice : " + nice +"\nNoumea : " + noumea + "\nQuebec : " + quebec;
     msg.reply(message);
