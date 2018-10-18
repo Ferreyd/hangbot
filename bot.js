@@ -5,6 +5,8 @@ const Discord = require('discord.js');
 const Config = require('./config.js')
 const request = require('request');
 const async = require("async");
+let moment = require("moment");
+let momentTz = require("moment-timezone");
 
 
 /**Two provider
@@ -83,7 +85,7 @@ const startup = () => {
 
 startup();
 
-const heure_command = (bot,msg) => {
+const heure_command_ws = (bot,msg) => {
     var message;
     var nce = "";
     var nou = "";
@@ -121,6 +123,17 @@ const heure_command = (bot,msg) => {
     msg.reply(message);
 };
 
+const heure_command = (bot,msg) => {
+    let now = moment();
+
+    let nice = now.tz('Europe/Paris');
+    let noumea = now.tz('Pacific/Noumea');
+    let quebec = now.tz('America/Montreal');
+
+    let message = "Nice : " + nice +"\nNoumea : " + noumea + "\nQuebec : " + quebec;
+    msg.reply(message);
+
+}
 const bonjour_command = (bot,msg) => {
     msg.reply("Bonjour, comment ça va aujourd'hui ?");
 }
