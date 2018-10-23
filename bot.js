@@ -56,6 +56,8 @@ const startup = () => {
             init();
     });
 
+
+
     // Respond to messages
     bot.on('message', msg => {
         // Make sure we de not reply to our own messages
@@ -64,6 +66,11 @@ const startup = () => {
             switch (msg.content) {
                 case '!heure': heure_command(bot,msg); break;
                 case '!heureWs' : heure_command_ws(bot,msg); break;
+                case '!issue' : msg.reply('https://github.com/Ferreyd/hangbot/issues');break;
+                case '!github' : msg.reply('https://github.com/Ferreyd/hangbot'); break;
+                case '!help': msg.reply("\n!heure\n!issue\n!github\n!help\n!bonjour\n!weekend\n!jour\n"); break;
+                case '!jour': jour_command(bot,msg);break;
+                case '!weekend': weekend_command(bot,msg);break;
                 case '!bonjour' : bonjour_command(bot,msg); break;
                 default: return;
             }
@@ -131,7 +138,6 @@ async.series(tasks,(err, results) => {
 
     
 };
-
 const heure_command = (bot,msg) => {
     moment.locale('fr');
     let now = moment();
@@ -144,7 +150,17 @@ const heure_command = (bot,msg) => {
 
     msg.reply(message);
 
-}
+};
 const bonjour_command = (bot,msg) => {
     msg.reply("Bonjour, comment ça va aujourd'hui ?");
-}
+};
+const jour_command = (bot, msg) => {
+    moment.locale('fr');
+    msg.reply("\nIl reste " + moment("17:30").fromNow() + " avant la fin de la journée de travail, courage !!");
+
+
+};
+
+const weekend_command = (bot,msg) =>{
+    msg.reply("\nPas encore implémenté, patience !");
+};
