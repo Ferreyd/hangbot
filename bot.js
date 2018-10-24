@@ -156,7 +156,7 @@ const bonjour_command = (bot,msg) => {
 };
 const jour_command = (bot, msg) => {
     moment.locale('fr');
-    msg.reply("\nIl reste " + moment("17:30").fromNow() + " avant la fin de la journée de travail, courage !!");
+    msg.reply("\nIl reste " +moment("17:30", "HH:mm").fromNow() + " avant la fin de la journée de travail, courage !!");
 
 
 };
