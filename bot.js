@@ -30,6 +30,16 @@ GEONAME_API_ICAO_NOU_CODE = "NWWW";
 GEONAME_API_ICAO_NCE_CODE = "LFMN";
 GEONAME_API_ICAO_YQB_CODE = "CYQB";
 
+NICO_TAG = "Ferreyd#6407";
+JEREMY_TAG = "rajaoje#3179";
+GIUSEPPE_TAG = "Giuseppe#1854";
+DAMIEN_TAG = "Damien#3093";
+MARC_TAG = "Cocosesame#5012";
+NADEGE_TAG = "Nadège#3069";
+IMAN_TAG = "Iman#3409";
+WILLIAM_TAG = "Shuny#9443";
+LAURENT_TAG = "iko#4122";
+
 
 const startup = () => {
     Winston.log('info', 'Starting up...');
@@ -142,9 +152,9 @@ const heure_command = (bot,msg) => {
     moment.locale('fr');
     let now = moment();
 
-    let nice = now.tz('Europe/Paris').format("LLLL Z");
-    let noumea = now.tz('Pacific/Noumea').format("LLLL Z");
-    let quebec = now.tz('America/Montreal').format("LLLL Z");
+    let nice = now.tz('Europe/Paris').format("LLLL");
+    let noumea = now.tz('Pacific/Noumea').format("LLLL");
+    let quebec = now.tz('America/Montreal').format("LLLL");
 
     let message = "\nNice : " + nice +"\nNoumea : " + noumea + "\nQuebec : " + quebec;
 
@@ -155,10 +165,36 @@ const bonjour_command = (bot,msg) => {
     msg.reply("Bonjour, comment ça va aujourd'hui ?");
 };
 const jour_command = (bot, msg) => {
+    let userTag = msg.author.id;
     moment.locale('fr');
-    msg.reply("\nIl reste " +moment("17:30", "HH:mm").fromNow() + " avant la fin de la journée de travail, courage !!");
-
-
+    if (NICO_TAG === userTag) {
+        msg.send("\n" + moment("17:00", "HH:mm").tz('Europe/Paris').fromNow() + " ce sera l'heure de la liberté, camarade @" + userTag + " , courage !!");
+    }
+    else if(JEREMY_TAG === userTag){
+        msg.send("\n tabernacle" + moment("16:00", "HH:mm").tz('America/Montreal').fromNow() + " ce sera ta fin de journée carisse," +
+            " prend ton char et vas t'en @" + userTag + " , et vive Céline");
+    }
+    else if(GIUSEPPE_TAG === userTag){
+        msg.reply(" Tu es en vacance feignasse.");
+    }
+    else if(IMAN_TAG === userTag){
+        msg.send("\n" + moment("16:00", "HH:mm").tz('Europe/Paris').fromNow() + " ce sera ta fin de journée @" + userTag + " , courage !!");
+    }
+    else if(DAMIEN_TAG === userTag){
+        msg.send("\n" + moment("17:00", "HH:mm").tz('Europe/Paris').fromNow() + " ce sera l'heure de remonter de la mine @" + userTag + " !!");
+    }
+    else if(MARC_TAG === userTag){
+        msg.send("\n" + moment("17:30", "HH:mm").tz('Europe/Paris').fromNow() + " tu pourras arreter de rien fouttre au taff pour rien branler chez toi, bravo @ " + userTag)
+    }
+    else if(WILLIAM_TAG === userTag){
+        msg.send("\n" + moment("17:30", "HH:mm").tz('Europe/Paris').fromNow() + " ce sera ta fin de journée @" + userTag + " , courage !!" );
+    }
+    else if(NADEGE_TAG === userTag){
+        msg.send("\n" + moment("16:00", "HH:mm").tz('Europe/Paris').fromNow() + " tu pourras dépenser tes tickets resto au bar @" + userTag + " , alcoolique !!");
+    }
+    else {
+        msg.send("\n" + moment("17:30", "HH:mm").tz('Europe/Paris').fromNow() + " ce sera ta fin de journée @" + userTag + " , courage !!")
+    }
 };
 
 const weekend_command = (bot,msg) =>{
