@@ -61,7 +61,6 @@
             Winston.log('info',"Tring to get Youtube API Key");
             // Load client secrets from a local file.
             auth = Tools.retrieveToken();
-            console.log("auth = " + auth);
 
 
             // Properly close connection on Ctrl-C
@@ -301,16 +300,15 @@
      * @param {*} msg 
      */
     const bigfloAndOliCommand = (bot, msg) => {
-        var test;
         var promise = Tools.callPlaylist(auth); 
         promise.then(function(result) {
             var channels = result.data.items;
             if (channels.length == 0) {
                 console.log('No channel found.');
             } else {
-                msg.reply(Tools.managePlayListResponse(channels));
-            };
-            }, function(err){
+                var lck = bot.users.get("186800850780291072");
+                bot.channels.get(msg.channel.id).send(Tools.managePlayListResponse(channels,lck));
+            }}, function(err){
                 msg.reply("Malheuresement ca marche pas ;(")
                 console.log(err);
             });    
