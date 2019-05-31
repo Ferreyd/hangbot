@@ -66,3 +66,6 @@ auth.json
 
 #Webstorm files
 .idea
+.googleToken
+client_secret.json
+.vscode/launch.json
