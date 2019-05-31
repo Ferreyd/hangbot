@@ -11,15 +11,20 @@ var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
     process.env.USERPROFILE) + '/.credentials/';
 var TOKEN_PATH = TOKEN_DIR + 'youtube-nodejs-quickstart.json';
 
+function retrieveToken(){
 // Load client secrets from a local file.
-fs.readFile('client_secret.json', function processClientSecrets(err, content) {
-  if (err) {
-    console.log('Error loading client secret file: ' + err);
-    return;
-  }
-  // Authorize a client with the loaded credentials, then call the YouTube API.
-  authorize(JSON.parse(content), getChannel);
-});
+var content = fs.readFileSync('client_secret.json');
+return authorize(JSON.parse(content));
+  fs.readFileSync('client_secret.json', function processClientSecrets(err, content) {
+    if (err) {
+      console.log('Error loading client secret file: ' + err);
+      return;
+    }
+    // Authorize a client with the loaded credentials, then call the YouTube API.
+    
+    });
+}
+
 
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
@@ -28,22 +33,20 @@ fs.readFile('client_secret.json', function processClientSecrets(err, content) {
  * @param {Object} credentials The authorization client credentials.
  * @param {function} callback The callback to call with the authorized client.
  */
-function authorize(credentials, callback) {
+function authorize(credentials) {
   var clientSecret = credentials.installed.client_secret;
   var clientId = credentials.installed.client_id;
   var redirectUrl = credentials.installed.redirect_uris[0];
   var oauth2Client = new OAuth2(clientId, clientSecret, redirectUrl);
 
-  // Check if we have previously stored a token.
-  fs.readFile(TOKEN_PATH, function(err, token) {
-    if (err) {
-      getNewToken(oauth2Client, callback);
-    } else {
-      oauth2Client.credentials = JSON.parse(token);
-      callback(oauth2Client);
-    }
-  });
+  var token = fs.readFileSync(TOKEN_PATH);
+  oauth2Client.credentials = JSON.parse(token);
+  var content = oauth2Client;
+  console.log("content sucess = " + content);
+
+  return content;
 }
+
 
 /**
  * Get and store new token after prompting for user authorization, and then
@@ -53,7 +56,8 @@ function authorize(credentials, callback) {
  * @param {getEventsCallback} callback The callback to call with the authorized
  *     client.
  */
-function getNewToken(oauth2Client, callback) {
+function getNewToken(oauth2Client) {
+  var content;
   var authUrl = oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: SCOPES
@@ -72,9 +76,10 @@ function getNewToken(oauth2Client, callback) {
       }
       oauth2Client.credentials = token;
       storeToken(token);
-      callback(oauth2Client);
+      content = oauth2Client;
     });
   });
+  return content;
 }
 
 /**
@@ -130,26 +135,39 @@ function getChannel(auth) {
   /**
    * Get all id from a playlist
    */
-  export function getPlaylist(){
-      var service = google.youtube.playlistItems.list({
-          auth: auth,
+   function callPlaylist(auth){
+     return new Promise(function(resolve,reject) {
+      var service = google.youtube('v3');
+      // Load client secrets from a local file.  
+      service.playlistItems.list({
+           auth: auth,
           "part": "contentDetails",
           "playlistId": "OLAK5uy_ma6SYbjlev3hUqWOlWWHbsq3YIzuAuYk8"
       }, function(err, response) {
         if (err) {
           console.log('The API returned an error: ' + err);
-          return;
-        }
-        var channels = response.data.items;
-        if (channels.length == 0) {
-          console.log('No channel found.');
-        } else {
-          console.log('This channel\'s ID is %s. Its title is \'%s\', and ' +
-                      'it has %s views.',
-                      channels[0].id,
-                      channels[0].snippet.title,
-                      channels[0].statistics.viewCount);
-        }
+          return reject(err);
+        }else{
+          return resolve(response);
+        }      
       });
+     })
   }
+
+function managePlayListResponse(response){
+  var idArr = [];
+    console.log(response);
+    //Store all Ids in the list except id with l-, it's an id for embed video, we do not want it
+    response.forEach(element => {
+        var contentDetails = element.contentDetails;
+        if(!contentDetails.videoId.includes('l-')){
+          idArr.push(contentDetails.videoId);
+        }
+    });
+    var random = Math.floor(Math.random() * Math.floor(idArr.length));
+    return "https://www.youtube.com/watch?v=" + idArr[random];
+}
+  module.exports.managePlayListResponse = managePlayListResponse;
+  module.exports.callPlaylist = callPlaylist;
+  module.exports.retrieveToken = retrieveToken;
  
