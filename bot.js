@@ -175,7 +175,7 @@ const heure_command = (bot, msg) => {
 const bonjour_command = (bot, msg) => {
     msg.reply("Bonjour, comment ça va aujourd'hui ?");
 };
-const jour_command = (bo    t, msg) => {
+const jour_command = (bot, msg) => {
     let userTag = msg.author.username;
     Winston.log('log', "User is " + userTag);
     moment.locale('fr');
