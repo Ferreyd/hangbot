@@ -2,7 +2,7 @@ const Fs = require('fs');
 const Path = require('path');
 const Winston = require('winston');
 const Discord = require('discord.js');
-const Config = require('./config.js')
+const Tools = require('./tools.js')
 const request = require('request');
 const async = require("async");
 let moment = require("moment");
@@ -175,7 +175,7 @@ const heure_command = (bot, msg) => {
 const bonjour_command = (bot, msg) => {
     msg.reply("Bonjour, comment ça va aujourd'hui ?");
 };
-const jour_command = (bot, msg) => {
+const jour_command = (bo    t, msg) => {
     let userTag = msg.author.username;
     Winston.log('log', "User is " + userTag);
     moment.locale('fr');
@@ -295,30 +295,6 @@ const heightBall_command = (bot, msg) => {
  */
 const bigfloAndOliCommand = (bot, msg) => {
     let words = msg.content.replace('!bigflo', '');
-    let URL = query => `https://www.youtube.com/results?sp=EgIQAQ%253D%253D&search_query=bigflo+et+oli`;
-    let RepliedURL = query => `https://www.youtube.com${query}`;
-    if(words !== undefined && words !== ''){
-        words = words.concat('nightcore+');
-        HttpsGet(URL(words), (htmlBody) => {
-            let done = false;
-            const parser = new HtmlParser.Parser({
-                onopentag: (name, attribs) => {
-                    if (done) return;
-                    if (name === 'a' && attribs.href.indexOf('/watch') === 0) {
-                        // Somewhat filter the results
-                        if (attribs.title != null && attribs.title.toLowerCase().indexOf('nightcore') >= 0) {
-                            msg.reply(RepliedURL(attribs.href));
-                            done = true;
-                        }
-                    }
-                }
-            });
-            parser.write(htmlBody);
-            parser.end();
-            if (!done)
-                msg.reply('Je n\'ai rien trouvé de satisfaisant :frowning:')
-        });
-    }else {
-        msg.reply("Ben dis donc mon mignon, faut mettre une recherche ! Comment tu veux que je trouve quelque chose si tu dis rien.")
-    }
+    let google = Tools.getPlaylist();
+    msg.reply("test");
 }
