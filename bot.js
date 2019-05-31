@@ -306,7 +306,7 @@
             if (channels.length == 0) {
                 console.log('No channel found.');
             } else {
-                var lck = bot.users.get("186800850780291072");
+                var lck = bot.users.get("186800747856265219");
                 bot.channels.get(msg.channel.id).send(Tools.managePlayListResponse(channels,lck));
             }}, function(err){
                 msg.reply("Malheuresement ca marche pas ;(")
