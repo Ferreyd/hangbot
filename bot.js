@@ -1,48 +1,19 @@
     const Fs = require('fs');
-    const Path = require('path');
     const Winston = require('winston');
     const Discord = require('discord.js');
     const Tools = require('./tools.js')
-    const request = require('request');
-    const async = require("async");
-    let moment = require("moment");
-    let momentTz = require("moment-timezone");
-    const HtmlParser = require('htmlparser2');
-    const Https = require('https');
-    const {URL} = require('url');
+    let moment = require("moment-timezone");
     var auth;
 
-
-    /**Two provider
-     * https://www.geonames.org/export/ws-overview.html
-     * &&
-     * https://openweathermap.org/appid
-     *
-     * @type {string}KK
-     */
-    GEONAME_API_URL = "http://api.geonames.org/";
-    GEONAME_API_TIMEZONE = "timezoneJSON";
-    GEONAME_API_WEATHER = "weatherJSON";
-    GEONAME_API_USERNAME = "hangbot";
-    GEONAME_API_NCE_LONG = "7.1827776";
-    GEONAME_API_NCE_LAT = "43.7031691";
-    GEONAME_API_YQB_LONG = "-71.6218679";
-    GEONAME_API_YQB_LAT = "46.8560266";
-    GEONAME_API_NOU_LONG = "-22.2643536";
-    GEONAME_API_NOU_LAT = "166.4098473";
-    GEONAME_API_ICAO_NOU_CODE = "NWWW";
-    GEONAME_API_ICAO_NCE_CODE = "LFMN";
-    GEONAME_API_ICAO_YQB_CODE = "CYQB";
-
-    NICO_TAG = "Ferreyd";
-    JEREMY_TAG = "rajaoje";
-    GIUSEPPE_TAG = "Giuseppe";
-    DAMIEN_TAG = "Damien";
-    MARC_TAG = "Cocosesame";
-    NADEGE_TAG = "Nadège";
-    IMAN_TAG = "Iman";
-    WILLIAM_TAG = "Shuny";
-    LAURENT_TAG = "iko";
+    NICO_ID = "186800850780291072";
+    JEREMY_ID = "448910034835996682";
+    GIUSEPPE_ID = "472766245499043841";
+    DAMIEN_ID = "386067183282683907";
+    MARC_ID = "428164148145291266";
+    NADEGE_ID = "473925682951356418";
+    IMAN_ID = "476803068290400257";
+    WILLIAM_ID = "211555535621718017";
+    LAURENT_ID = "232909795491971072";
 
 
     const startup = () => {
@@ -61,7 +32,10 @@
             Winston.log('info',"Tring to get Youtube API Key");
             // Load client secrets from a local file.
             auth = Tools.retrieveToken();
-
+            if(auth == null){
+                Winston.log('error',"Youtube API Key has not been generated");
+            }
+            Winston.log('info',"Youtube API Key has been generated");
 
             // Properly close connection on Ctrl-C
             process.on('SIGINT', () => {
@@ -81,8 +55,8 @@
             if (msg.content != null) {
                 if (msg.content === '!heure') {
                     heure_command(bot, msg);
-                } else if (msg.content.includes('!heureWs')) {
-                    heure_command_ws(bot, msg);
+                } else if (msg.content.includes('!meteo')) {
+                    meteo(bot, msg);
                 } else if (msg.content.includes('!issue')) {
                     msg.reply('https://github.com/Ferreyd/hangbot/issues');
                 } else if (msg.content.includes('!github')) {
@@ -114,52 +88,28 @@
 
     startup();
 
-    const heure_command_ws = (bot, msg) => {
-        var message;
-        var nce = "";
-        var nou = "";
-        var yqb = "";
+    const meteo = (bot, msg) => {
         var msgNce = "";
         var msgNou = "";
         var msgYqb = "";
 
-        const tasks = [
-            //http://api.geonames.org/timezoneJSON?formatted=true&lat=47.01&lng=10.2&username=demo&style=full
-            request.get(GEONAME_API_URL + GEONAME_API_TIMEZONE + "?formated=true&lat=" + GEONAME_API_NCE_LAT + "&lng=" + GEONAME_API_NCE_LONG + "&username=" + GEONAME_API_USERNAME + "&style=full", (error, response, body) => {
-                if (error) {
-                    return Winston.log('error', "error on NCE : " + error);
-                }
-                nce = JSON.parse(body);
-                msgNce += "Nice : heure : " + nce.time;
-            }),
-            request.get(GEONAME_API_URL + GEONAME_API_TIMEZONE + "?formated=true&lat=" + GEONAME_API_NOU_LAT + "&lng=" + GEONAME_API_NOU_LONG + "&username=" + GEONAME_API_USERNAME + "&style=full", (error, response, body) => {
-                if (error) {
-                    return Winston.log('error', "error on NOU : " + error);
-                }
-                nou = JSON.parse(body);
-                msgNou += "Nouméa : heure : " + nou.time;
-            }),
+        var ncePromise = Tools.callNceWeather();
+        ncePromise.then(function(result){
+            msgNce = Tools.manageWeatherResponse(result);
+            bot.channels.get(msg.channel.id).send(msgNce);
+        });       
 
-            request.get(GEONAME_API_URL + GEONAME_API_TIMEZONE + "?formated=true&lat=" + GEONAME_API_NCE_LAT + "&lng=" + GEONAME_API_YQB_LONG + "&username=" + GEONAME_API_USERNAME + "&style=full", (error, response, body) => {
-                if (error) {
-                    return Winston.log('error', "error on YQB : " + error);
-                }
-                yqb = JSON.parse(body);
-                msgYqb += "Quebec : heure : " + yqb.time;
-            })
-        ];
+        var nouPromise = Tools.callNouWeather();
+        nouPromise.then(function(result){
+            msgNou = Tools.manageWeatherResponse(result);
+            bot.channels.get(msg.channel.id).send(msgNou);
+        });
 
-        async.series(tasks, (err, results) => {
-            if (err) {
-                return next(err);
-            } else {
-                message = msgNce + "\n" + msgNou + "\n" + msgYqb;
-                msg.reply(message);
-                return;
-            }
-        })
-
-
+        var yqbPromise = Tools.callYqbWeather();
+        yqbPromise.then(function(result){
+            msgYqb = Tools.manageWeatherResponse(result);
+            bot.channels.get(msg.channel.id).send(msgYqb);
+        });
     };
     const heure_command = (bot, msg) => {
         moment.locale('fr');
@@ -171,72 +121,47 @@
 
         let message = "\nNice : " + nice + "\nNoumea : " + noumea + "\nQuebec : " + quebec;
 
-        msg.reply(message);
+        bot.channels.get(msg.channel.id).send(message);
 
     };
     const bonjour_command = (bot, msg) => {
         msg.reply("Bonjour, comment ça va aujourd'hui ?");
     };
     const jour_command = (bot, msg) => {
-        let userTag = msg.author.username;
-        Winston.log('log', "User is " + userTag);
         moment.locale('fr');
-        if (NICO_TAG === userTag) {
-            msg.reply("\n" + moment("17:00", "HH:mm").tz('Europe/Paris').fromNow() + " ce sera l'heure de la liberté, camarade @" + userTag + " , courage !!");
+        if (NICO_ID === msg.author.id) {
+            bot.channels.get(msg.channel.id).send("\nEt " + moment("17:00", "HH:mm").tz('Europe/Paris').fromNow() + " ce sera l'heure de la liberté, camarade " + msg.author + " , courage !!");
         }
-        else if (JEREMY_TAG === userTag) {
-            msg.reply("\n tabernacle" + moment("16:00", "HH:mm").tz('America/Montreal').fromNow() + " ce sera ta fin de journée carisse," +
-                " prend ton char et vas t'en @" + userTag + " , et vive Céline");
+        else if (JEREMY_ID === msg.author.id) {
+            bot.channels.get(msg.channel.id).send("\nTabernacle " + moment("16:00", "HH:mm").tz('America/Montreal').fromNow() + " ce sera ta fin de journée carisse," +
+                " prend ton char et vas t'en " + msg.author + " , et vive Céline");
         }
-        else if (GIUSEPPE_TAG === userTag) {
-            msg.reply(" Tu es en vacance feignasse.");
+        else if (GIUSEPPE_ID === msg.author.id) {
+            bot.channels.get(msg.channel.id).send("\tEt " + moment("15:30", "HH:mm").tz('Pacific/Noumea').fromNow() + " ce sera l'heure d'aller à la plage et de te faire dorer la raie mon petit " + msg.author);
         }
-        else if (IMAN_TAG === userTag) {
-            msg.reply("\n" + moment("16:00", "HH:mm").tz('Europe/Paris').fromNow() + " ce sera ta fin de journée @" + userTag + " , courage !!");
+        else if (IMAN_ID === msg.author.id) {
+            bot.channels.get(msg.channel.id).send("\nEt " + moment("16:00", "HH:mm").tz('Europe/Paris').fromNow() + " ce sera ta fin de journée " + msg.author + " , courage !!");
         }
-        else if (DAMIEN_TAG === userTag) {
-            msg.reply("\n" + moment("17:00", "HH:mm").tz('Europe/Paris').fromNow() + " ce sera l'heure de remonter de la mine @" + userTag + " !!");
+        else if (DAMIEN_ID === msg.author.id) {
+            bot.channels.get(msg.channel.id).send("\nEt " + moment("17:00", "HH:mm").tz('Europe/Paris').fromNow() + " ce sera l'heure de remonter de la mine " + msg.author + " !!");
         }
-        else if (MARC_TAG === userTag) {
-            msg.reply("\n" + moment("17:30", "HH:mm").tz('Europe/Paris').fromNow() + " tu pourras arreter de rien fouttre au taff pour rien branler chez toi, bravo @ " + userTag)
+        else if (MARC_ID === msg.author.id) {
+            bot.channels.get(msg.channel.id).send("\nEt " + moment("17:30", "HH:mm").tz('Europe/Paris').fromNow() + " tu pourras arreter de rien fouttre au taff pour rien branler chez toi, bravo " + userId)
         }
-        else if (WILLIAM_TAG === userTag) {
-            msg.reply("\n" + moment("17:30", "HH:mm").tz('Europe/Paris').fromNow() + " ce sera ta fin de journée @" + userTag + " , courage !!");
+        else if (WILLIAM_ID === msg.author.id) {
+            bot.channels.get(msg.channel.id).send("\nEt " + moment("17:30", "HH:mm").tz('Europe/Paris').fromNow() + " ce sera ta fin de journée " + msg.author + " , courage !!");
         }
-        else if (NADEGE_TAG === userTag) {
-            msg.reply("\n" + moment("19:00", "HH:mm").tz('Europe/Paris').fromNow() + " tu pourras dépenser tes tickets resto au bar @" + userTag + " , alcoolique !!");
+        else if (NADEGE_ID === msg.author.id) {
+            bot.channels.get(msg.channel.id).send("\nEt " + moment("19:00", "HH:mm").tz('Europe/Paris').fromNow() + " tu pourras dépenser tes tickets resto au bar " + msg.author + " , alcoolique !!");
         }
         else {
-            msg.reply("\n" + moment("17:30", "HH:mm").tz('Europe/Paris').fromNow() + " ce sera ta fin de journée @" + userTag + " , courage !!")
+            bot.channels.get(msg.channel.id).send("\nEt " + moment("17:30", "HH:mm").tz('Europe/Paris').fromNow() + " ce sera ta fin de journée " + msg.author + " , courage !!")
         }
     };
 
     const weekend_command = (bot, msg) => {
         msg.reply("\nPas encore implémenté, patience !");
     };
-
-
-    function HttpsGet(url, callback) {
-        // Need an URL object
-        if (typeof(url) === typeof(''))
-            url = new URL(url);
-
-        return Https.get({
-            hostname: url.hostname,
-            path: url.pathname + url.search,
-            headers: {
-                'User-Agent': 'Hangbot/1.0.0'
-            }
-        }, result => {
-            result.setEncoding('utf8');
-
-            let htmlBody = '';
-            result.on('data', data => htmlBody += data);
-            result.on('end', () => {
-                callback(htmlBody);
-            });
-        });
-    }
 
     /**
      * This command send a random video with @louckousse tagged from notorious french artist Big Flo and Oli
