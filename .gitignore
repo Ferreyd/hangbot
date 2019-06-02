@@ -69,3 +69,4 @@ auth.json
 .googleToken
 client_secret.json
 .vscode/launch.json
+apixu.token

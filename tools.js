@@ -4,6 +4,9 @@ var OAuth2 = google.auth.OAuth2;
 const Winston = require('winston');
 const request = require('request');
 let moment = require("moment");
+const apixuClient = require("apixu");
+
+
 
 // If modifying these scopes, delete your previously saved credentials
 // at ~/.credentials/youtube-nodejs-quickstart.json
@@ -40,6 +43,7 @@ function retrieveToken(){
   var content = fs.readFileSync('client_secret.json');
   return authorize(JSON.parse(content));
 }
+
 
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
@@ -95,50 +99,34 @@ function authorize(credentials) {
      })
   }
 
-  function callNouWeather(){
-    return new Promise(function(resolve, reject){
-      request.get(GEONAME_API_URL + GEONAME_API_WEATHER + "?formated=true&ICAO="+GEONAME_API_ICAO_NOU_CODE + "&username=" + GEONAME_API_USERNAME + "&style=full",
-      function(error, response, body) {          
-        if(error){
-          Winston.log('error', "error on NOU : " + error);
-          reject(err);
-        }
-        resolve(body);   
-    });
-  })
-}
-
-function callYqbWeather(){
+function callWeather(token, town){
+  var config = apixuClient.config;
+  config.apikey = token;
+  var apixu = new apixuClient.Apixu(config);
   return new Promise(function(resolve, reject){
-    request.get(GEONAME_API_URL + GEONAME_API_WEATHER + "?formated=true&ICAO="+GEONAME_API_ICAO_YQB_CODE + "&username=" + GEONAME_API_USERNAME + "&style=full",
-    function(error, response, body) {           
-      if(error){
-        Winston.log('error', "error on YQB : " + error);
-        reject(err);
-      }
-      resolve(body);   
-  });
-});
-}
-
-  function callNceWeather(){
-    return new Promise(function(resolve, reject){
-      request.get(GEONAME_API_URL + GEONAME_API_WEATHER + "?formated=true&ICAO="+GEONAME_API_ICAO_NCE_CODE + "&username=" + GEONAME_API_USERNAME + "&style=full",
-       function(error, response, body) {
-        if(error){
-          Winston.log('error', "error on NCE : " + error);
-          reject(err);
-        }
-        resolve(body);   
+    apixu.current(town).then((current) => {
+      resolve(current);
+    }, (err) => {
+      reject(err);
     });
   });
 }
 
 function manageWeatherResponse(weatherResponse){
-  let json = JSON.parse(weatherResponse);
-  let weather = json.weatherObservation;
-  let response = "Sur la station de " + weather.stationName + " le " + weather.datetime + " il fait " + weather.temperature + " °C avec une humidité de " + weather.humidity + " % " +
-  "la vitesse du vent est de " + weather.windSpeed + " km/h " + " direction " + windDirection(weather.windDirection) + " la couverture nuageuse est annoncée avec : " + weather.clouds + " .\n";
+  let location = weatherResponse.location;
+  let current = weatherResponse.current;
+  let cloud ="";
+  let rain = "";
+  if(current.cloud != 0){
+    cloud = "La couverture nuageuse est de " + current.cloud +" %";
+  }
+  if(current.precip_mm != 0){
+    rain = "Il a plu " + current.precip_mm + " mm ^pur l'instant";
+  }
+  let response = "Sur la station de " + location.name + " le " + current.last_updated + " il fait : " + current.condition.text + " la température est de " + current.temp_c + " °C pour un ressenti de : " + current.feelslike_c
+  + " °C avec une humidité de " + current.humidity + " % " +  "la vitesse du vent est de " + current.wind_kph + " km/h " + " direction " 
+  + windDirection(current.wind_degree) + " l'indice UV est de : " + current.uv + " " + cloud +" " + rain + " .\n\n";
+  
   return response;
 }
 
@@ -184,8 +172,6 @@ function getRandomInt(maxInt){
   module.exports.callPlaylist = callPlaylist;
   module.exports.retrieveToken = retrieveToken;
   module.exports.attention = '!';
-  module.exports.callNceWeather = callNceWeather;
-  module.exports.callNouWeather = callNouWeather;
-  module.exports.callYqbWeather = callYqbWeather;
+  module.exports.callWeather = callWeather;
   module.exports.manageWeatherResponse = manageWeatherResponse;
  

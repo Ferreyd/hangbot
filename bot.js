@@ -3,6 +3,7 @@
     const Discord = require('discord.js');
     const Tools = require('./tools.js')
     let moment = require("moment-timezone");
+    var apixuToken;
     var auth;
 
     NICO_ID = "186800850780291072";
@@ -84,32 +85,40 @@
             else
                 Winston.log('error', err.message);
         });
+
+
+        // Connect from the token found in the .token file
+        Fs.readFile('apixu.token', {encoding: 'utf-8'}, (err, data) => {
+            if (err == null)
+                apixuToken = data.trimRight();
+            else
+                Winston.log('error', err.message);
+        });
+          
+          
     };
 
     startup();
 
     const meteo = (bot, msg) => {
-        var msgNce = "";
-        var msgNou = "";
-        var msgYqb = "";
-
-        var ncePromise = Tools.callNceWeather();
-        ncePromise.then(function(result){
-            msgNce = Tools.manageWeatherResponse(result);
-            bot.channels.get(msg.channel.id).send(msgNce);
-        });       
-
-        var nouPromise = Tools.callNouWeather();
-        nouPromise.then(function(result){
-            msgNou = Tools.manageWeatherResponse(result);
-            bot.channels.get(msg.channel.id).send(msgNou);
-        });
-
-        var yqbPromise = Tools.callYqbWeather();
-        yqbPromise.then(function(result){
-            msgYqb = Tools.manageWeatherResponse(result);
-            bot.channels.get(msg.channel.id).send(msgYqb);
-        });
+        var content = msg.content;
+        var baseTown = ["Nice", "Noumea", "Quebec"];
+        if(content === '!meteo'){
+            baseTown.forEach(function(town){
+                var promise = Tools.callWeather(apixuToken,town);
+                promise.then(function(result){
+                    var res = Tools.manageWeatherResponse(result);
+                    bot.channels.get(msg.channel.id).send(res);
+                });
+            });
+        }else{
+            var town = content.replace('!meteo', '');
+            var promise = Tools.callWeather(apixuToken,town);
+            promise.then(function(result){
+                var res = Tools.manageWeatherResponse(result);
+                msg.reply(res);
+            });
+        }  
     };
     const heure_command = (bot, msg) => {
         moment.locale('fr');
