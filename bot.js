@@ -80,19 +80,28 @@
 
         // Connect from the token found in the .token file
         Fs.readFile('.token', {encoding: 'utf-8'}, (err, data) => {
-            if (err == null)
+            if (err == null){
                 bot.login(data.trimRight());
-            else
+                console.log("read sucessfully discord token");
+            }                
+            else{
+                console.log("Cannot read discord token token");
                 Winston.log('error', err.message);
+            }                
         });
 
 
         // Connect from the token found in the .token file
         Fs.readFile('apixu.token', {encoding: 'utf-8'}, (err, data) => {
-            if (err == null)
+            if (err == null){
                 apixuToken = data.trimRight();
-            else
+                console.log("read sucessfully apixu token");
+            }                
+            else{
+                console.log("Cannot read apixu token");
                 Winston.log('error', err.message);
+            }
+                
         });
           
           
