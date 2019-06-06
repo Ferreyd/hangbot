@@ -115,19 +115,20 @@ const meteo = (bot, msg) => {
             var promise = Tools.callWeather(apixuToken, town);
             promise.then(function (result) {
                 var res = Tools.manageWeatherResponse(result);
-                message.channel.send(res);
+                bot.channels.get(msg.channel.id).send(res);
             });
         }), function (err) {
-            message.channel.send("Erreur lors de la requète")
+            bot.channels.get(msg.channel.id).send("Erreur lors de la requète")
         };
     } else {
         var town = content.replace('!meteo', '');
         var promise = Tools.callWeather(apixuToken, town);
         promise.then(function (result) {
             var res = Tools.manageWeatherResponse(result);
-            message.channel.send(res);
+            bot.channels.get(msg.channel.id).send(res);
+            ;
         }), function (err) {
-            message.channel.send("La ville " + town + " n'existe pas.")
+            bot.channels.get(msg.channel.id).send("La ville " + town + " n'existe pas.")
         };
     }
 };
@@ -185,7 +186,7 @@ const bigfloAndOliCommand = (bot, msg) => {
     var promise = Tools.callPlaylist(auth);
     promise.then(function (result) {
         var channels = result.data.items;
-        if (channels.length === 0) {
+        if (channels.length == 0) {
             console.log('No channel found.');
         } else {
             var lck = bot.users.get("186800747856265219");
