@@ -70,7 +70,7 @@
                     weekend_command(bot, msg);
                 } else if (msg.content.includes('!bonjour')) {
                     bonjour_command(bot, msg);
-                }  else if(msg.content.includes('!bigflo')) {
+                }  else if(msg.content.includes('!bigflo') && msg.author.id == NICO_ID) {
                     bigfloAndOliCommand(bot,msg);
                 } else {
                     return;
