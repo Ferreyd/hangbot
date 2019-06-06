@@ -73,7 +73,7 @@
                 }  else if(msg.content.includes('!bigflo')) {
                     bigfloAndOliCommand(bot,msg);
                 } else {
-                   bot.channels.get(msg.channel.id).send("HEY " + bot.users.get(NICO_ID) + " t'es un gros boloss (et un homme mort).");
+                    return;
                 }
             }
         });
