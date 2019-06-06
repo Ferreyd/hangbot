@@ -136,7 +136,7 @@ function manageWeatherResponse(weatherResponse) {
     }
     embed.addField("Mise à jour", current.last_updated);
 
-    return response;
+    return embed;
 }
 
 function windDirection(wind) {
