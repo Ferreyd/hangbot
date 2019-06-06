@@ -116,18 +116,18 @@
             baseTown.forEach(function(town){
                 var promise = Tools.callWeather(apixuToken,town);
                 promise.then(function(result){
-                    var res = Tools.manageWeatherResponse(result);
-                    bot.channels.get(msg.channel.id).send(res);
+                   const embed = Tools.manageWeatherResponse(result);
+                    bot.channels.get(msg.channel.id).send({embed});    
                 });
             }),function(err){
-                bot.channels.get(msg.channel.id).send("Erreur lors de la requète")
+                bot.channels.get(msg.channel.id).send("Erreur lors de la requète");
             };
         }else{
             var town = content.replace('!meteo', '');
             var promise = Tools.callWeather(apixuToken,town);
             promise.then(function(result){
-                var res = Tools.manageWeatherResponse(result);
-                msg.reply(res);
+                const embed = Tools.manageWeatherResponse(result);
+                msg.reply(embed);
             }), function(err){
                 bot.channels.get(msg.channel.id).send("La ville " + town + " n'existe pas.")
             };
