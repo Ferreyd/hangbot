@@ -127,7 +127,7 @@
             var promise = Tools.callWeather(apixuToken,town);
             promise.then(function(result){
                 const embed = Tools.manageWeatherResponse(result);
-                msg.reply(embed);
+                bot.channels.get(msg.channel.id).send({embed});    
             }), function(err){
                 bot.channels.get(msg.channel.id).send("La ville " + town + " n'existe pas.")
             };
@@ -147,7 +147,7 @@
 
     };
     const bonjour_command = (bot, msg) => {
-        msg.reply("Bonjour, comment ça va aujourd'hui ? Et surtout n'oubliez pas de dire à " + bot.users.get(NICO_ID) + " de baiser sa mère")
+        msg.reply("Bonjour, comment ça va aujourd'hui ?")
     };
     const jour_command = (bot, msg) => {
         moment.locale('fr');
