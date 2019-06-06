@@ -63,7 +63,7 @@
                 } else if (msg.content.includes('!github')) {
                     msg.reply('https://github.com/Ferreyd/hangbot');
                 } else if (msg.content.includes('!help')) {
-                    msg.reply("\n!heure\n!issue\n!github\n!help\n!bonjour\n!weekend\n!jour\n!bigflo\n");
+                    msg.reply("\n!heure\n!issue\n!github\n!help\n!bonjour\n!weekend\n!jour\n");
                 } else if (msg.content.includes('!jour')) {
                     jour_command(bot, msg);
                 } else if (msg.content.includes('!weekend')) {
