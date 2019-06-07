@@ -121,25 +121,21 @@ function manageWeatherResponse(weatherResponse) {
     let pluie = "";
     let condition = current.condition;
     if (current.cloud !== 0) {
-        nuages = "La couverture nuageuse est de **" + current.cloud + " %**";
+        nuages = "La couverture nuageuse est de **" + current.cloud + " %** \n";
     }
-
+    nuages += "L'indice d'UV est de **" + current.uv + "** ";
     embed.setTitle("Météo pour " + location.name);
-
     embed.addField("Températures", temperature);
-    embed.addField("Vent", vent);
-    
+    embed.addField("Vent", vent);    
     embed.addField("Couverture nuageuse", nuages);
     if(condition !== null){
         embed.setThumbnail("http:" + condition.icon); 
     }
-
     if (current.precip_mm !== 0) {
         pluie = "Il a plu **" + current.precip_mm + " mm** pour l'instant";
         embed.addField("Précipitations", pluie);
     }
     embed.setTimestamp(current.last_updated);
-
     return embed;
 }
 
