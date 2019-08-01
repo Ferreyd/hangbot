@@ -111,7 +111,7 @@
 
     const meteo = (bot, msg) => {
         var content = msg.content;
-        var baseTown = ["Nice", "Nantes", "Paris", "Quebec","Bruxelles", "La Marsa"];
+        var baseTown = ["Nice", "Nantes", "Paris", "Quebec","Bruxelles", "La Marsa", "Lyon"];
         if(content === '!meteo'){
             baseTown.forEach(function(town){
                 var promise = Tools.callWeather(apixuToken,town);
