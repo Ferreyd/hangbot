@@ -210,7 +210,7 @@
     
     const sobrieteComand = (bot,msg) => {
         moment.locale('fr');
-        if(msg.content.contains('0')){
+        if(msg.content.includes('0')){
             bot.channels.get(msg.channel.id).send("Remise à zéro");
             sobrieteDate = moment().valueOf();
         }        
