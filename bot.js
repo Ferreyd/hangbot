@@ -72,6 +72,8 @@
                     bonjour_command(bot, msg);
                 }  else if(msg.content.includes('!bigflo') && msg.author.id == NICO_ID) {
                     bigfloAndOliCommand(bot,msg);
+                }else if (msg.content.includes('!sobriete')) {
+                    sobrieteComand(bot, msg);
                 } else {
                     return;
                 }
@@ -204,5 +206,14 @@
                 msg.reply("Malheuresement ca marche pas ;(, parce que " + bot.users.get(NICO_ID) + " est un gros boloss")
                 console.log(err);
             });    
+    }
+    
+    const sobrieteComand = (bot,msg) => {
+        moment.locale('fr');
+        if(msg.content.contains('0')){
+            bot.channels.get(msg.channel.id).send("Remise à zéro");
+            sobrieteDate = moment().valueOf();
+        }        
+        bot.channels.get(msg.channel.id).send("Lucas est sobre depuis : " + moment().diff(sobrieteDate, 'days') + " jours");
     }
 
