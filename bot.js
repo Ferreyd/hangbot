@@ -5,6 +5,7 @@
     let moment = require("moment-timezone");
     var apixuToken;
     var auth;
+    let sobrieteDate;
 
     NICO_ID = "186800850780291072";
     JEREMY_ID = "448910034835996682";
