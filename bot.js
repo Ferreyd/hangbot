@@ -5,7 +5,7 @@
     let moment = require("moment-timezone");
     var apixuToken;
     var auth;
-    let sobrieteDate;
+    const sobrieteDate;
 
     NICO_ID = "186800850780291072";
     JEREMY_ID = "448910034835996682";
@@ -73,8 +73,8 @@
                     bonjour_command(bot, msg);
                 }  else if(msg.content.includes('!bigflo') && msg.author.id == NICO_ID) {
                     bigfloAndOliCommand(bot,msg);
-                }else if (msg.content.includes('!sobriete')) {
-                    sobrieteComand(bot, msg);
+                } else if(msg.content.includes('!sobriete')) {
+                    sobrieteComand(bot,msg);
                 } else {
                     return;
                 }
@@ -212,6 +212,15 @@
     const sobrieteComand = (bot,msg) => {
         moment.locale('fr');
         if(msg.content.includes('0')){
+            bot.channels.get(msg.channel.id).send("Remise à zéro");
+            sobrieteDate = moment().valueOf();
+        }        
+        bot.channels.get(msg.channel.id).send("Lucas est sobre depuis : " + moment().diff(sobrieteDate, 'days') + " jours");
+    }
+
+    const sobrieteComand = (bot,msg) => {
+        moment.locale('fr');
+        if(msg.content.contains('0')){
             bot.channels.get(msg.channel.id).send("Remise à zéro");
             sobrieteDate = moment().valueOf();
         }        
