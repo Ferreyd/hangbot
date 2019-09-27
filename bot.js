@@ -76,7 +76,9 @@
                     bigfloAndOliCommand(bot,msg);
                 } else if(msg.content.includes('!sobriete')) {
                     sobrieteComand(bot,msg);
-                } else {
+                } else if(msg.content.includes('!note')){
+                    noteCommand(bot,msg);                   
+                }else{
                     return;
                 }
             }
@@ -219,5 +221,49 @@
         let now = moment(); 
         let jours = now.diff(sobrieteDate, 'days');  
         bot.channels.get(msg.channel.id).send("Lucas est sobre depuis : " + jours + " jours");
+    }
+
+
+    const noteCommand = (bot,msg) => {
+        var max = 10;
+        var min = 0;
+        let random = Math.floor(Math.random() * (max - min + 1)) + min;
+        let res;
+        switch(random){
+            case 0:
+                res = "0/10 moins fun qu'un CD vierge";
+            break;
+            case 1:
+                res = "1/10 à chier";
+            break;
+            case 2:
+                res = "2/10 merdique";
+            break;
+            case 3:
+                res = "3/10 naze";
+            break;
+            case 4:
+                res = "4/10 bof";
+            break;
+            case 5:
+                res = "5/10 meh";
+            break;
+            case 6:
+                res = "6/10 très bon :dreamburger:";
+            break;
+            case 7:
+                res = "7/10 pas mal !";
+            break;
+            case 8:
+                res = "8/10 génial";
+            break;
+            case 9:
+                res = "9/10 truc de ouf";
+            break;
+            case 10:
+                res = "10/10 magnifique !!!";
+            break;                                    
+        }
+        bot.channels.get(msg.channel.id).send(res);
     }
 
