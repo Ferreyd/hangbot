@@ -6,6 +6,7 @@
     var apixuToken;
     var auth;
     const sobrieteDate;
+    let sobrieteMap = new Map();
 
     NICO_ID = "186800850780291072";
     JEREMY_ID = "448910034835996682";
@@ -208,22 +209,15 @@
                 console.log(err);
             });    
     }
-    
-    const sobrieteComand = (bot,msg) => {
-        moment.locale('fr');
-        if(msg.content.includes('0')){
-            bot.channels.get(msg.channel.id).send("Remise à zéro");
-            sobrieteDate = moment().valueOf();
-        }        
-        bot.channels.get(msg.channel.id).send("Lucas est sobre depuis : " + moment().diff(sobrieteDate, 'days') + " jours");
-    }
 
     const sobrieteComand = (bot,msg) => {
         moment.locale('fr');
-        if(msg.content.contains('0')){
+        if(msg.content.contains('reset')){
             bot.channels.get(msg.channel.id).send("Remise à zéro");
-            sobrieteDate = moment().valueOf();
-        }        
-        bot.channels.get(msg.channel.id).send("Lucas est sobre depuis : " + moment().diff(sobrieteDate, 'days') + " jours");
+            sobrieteDate = moment();
+        }   
+        let now = moment(); 
+        let jours = now.diff(sobrieteDate, 'days');  
+        bot.channels.get(msg.channel.id).send("Lucas est sobre depuis : " + jours + " jours");
     }
 
