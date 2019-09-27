@@ -262,7 +262,8 @@
             break;
             case 10:
                 res = "10/10 magnifique !!!";
-            break;                                    
+            break;   
+            default: break;                                 
         }
         bot.channels.get(msg.channel.id).send(res);
     }
