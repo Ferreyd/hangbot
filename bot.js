@@ -5,8 +5,8 @@
     let moment = require("moment-timezone");
     var apixuToken;
     var auth;
-    const sobrieteDate;
-    let sobrieteMap = new Map();
+    const sobrieteDate = moment();
+
 
     NICO_ID = "186800850780291072";
     JEREMY_ID = "448910034835996682";
