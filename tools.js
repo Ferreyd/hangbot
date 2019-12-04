@@ -106,7 +106,7 @@ function callWeather(token, town){
         query: town
     };
     return new Promise(function (resolve, reject) {
-        axios.get('https://api.weatherstack.com/current', {params})
+        axios.get('http://api.weatherstack.com/current', {params})
             .then(response => {
                 resolve(response);
             }).catch(error => {
@@ -117,23 +117,23 @@ function callWeather(token, town){
 
 function manageWeatherResponse(weatherResponse) {
     let embed = new Discord.RichEmbed();
-    let location = weatherResponse.location;
-    let current = weatherResponse.current;
+    let location = weatherResponse.data.location;
+    let current = weatherResponse.data.current;
     let temperature = "La température est de **" + current.temperature + " °C** pour un ressenti de : **" + current.feelslike + " °C**";
     let vent = "La vitesse du vent est de **" + current.wind_speed + " km/h** " + " direction **" + current.wind_dir+ "**";
-    let nuages = "L'indice d'UV est de **" + current.uv_index + "** ";
+    let nuages;
     let pluie = "";
-    let condition = current.condition;
+    let condition = current.weather_icons;
     if (current.cloud !== 0) {
         nuages = "La couverture nuageuse est de **" + current.cloudcover + " %** \n";
     }
-    nuages += "L'indice d'UV est de **" + current.uv + "** ";
+    nuages += "L'indice d'UV est de **" + current.uv_index + "** ";
     embed.setTitle("Météo pour " + location.name);
     embed.addField("Températures", temperature);
     embed.addField("Vent", vent);    
     embed.addField("Couverture nuageuse", nuages);
-    if(condition !== null){
-        embed.setThumbnail(condition.weather_icons[0]);
+    if(condition !== null && condition.length > 0){
+        embed.setThumbnail(condition[0]);
     }
     if (current.precip!== 0) {
         pluie = "Il a plu **" + current.precip + " mm** pour l'instant";
@@ -141,18 +141,6 @@ function manageWeatherResponse(weatherResponse) {
     }
     embed.setTimestamp(current.observation_time);
     return embed;
-}
-
-function windDirection(wind) {
-    if (wind < 45) return "Nord";
-    else if (wind >= 45 && wind < 90) return "Nord-Est";
-    else if (wind <= 90 && wind < 135) return "Est";
-    else if (wind <= 135 && wind < 180) return "Sud-Est";
-    else if (wind <= 180 && wind < 235) return "Sud";
-    else if (wind <= 235 && wind < 270) return "Sud-Ouest";
-    else if (wind <= 270 && wind < 315) return "Ouest";
-    else if (wind <= 315 && wind < 360) return "Nord-Ouest";
-    else return "non précisée";
 }
 
 function managePlayListResponse(response, lck) {
