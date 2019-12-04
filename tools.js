@@ -6,6 +6,8 @@ const request = require('request');
 let moment = require("moment");
 const apixuClient = require("apixu");
 const Discord = require('discord.js');
+const axios = require('axios');
+
 
 
 // If modifying these scopes, delete your previously saved credentials
@@ -98,15 +100,17 @@ function callPlaylist(auth) {
     })
 }
 
-function callWeather(token, town) {
-    var config = apixuClient.config;
-    config.apikey = token;
-    var apixu = new apixuClient.Apixu(config);
+function callWeather(token, town){
+    var params = {
+        access_key: token,
+        query: town
+    };
     return new Promise(function (resolve, reject) {
-        apixu.current(town).then((current) => {
-            resolve(current);
-        }, (err) => {
-            reject(err);
+        axios.get('https://api.weatherstack.com/current', {params})
+            .then(response => {
+                resolve(response);
+            }).catch(error => {
+            reject(error)
         });
     });
 }
@@ -115,13 +119,13 @@ function manageWeatherResponse(weatherResponse) {
     let embed = new Discord.RichEmbed();
     let location = weatherResponse.location;
     let current = weatherResponse.current;
-    let temperature = "La température est de **" + current.temp_c + " °C** pour un ressenti de : **" + current.feelslike_c + " °C**";
-    let vent = "La vitesse du vent est de **" + current.wind_kph + " km/h** " + " direction **" + windDirection(current.wind_degree) + "**";
-    let nuages = "L'indice d'UV est de **" + current.uv + "** ";
+    let temperature = "La température est de **" + current.temperature + " °C** pour un ressenti de : **" + current.feelslike + " °C**";
+    let vent = "La vitesse du vent est de **" + current.wind_speed + " km/h** " + " direction **" + current.wind_dir+ "**";
+    let nuages = "L'indice d'UV est de **" + current.uv_index + "** ";
     let pluie = "";
     let condition = current.condition;
     if (current.cloud !== 0) {
-        nuages = "La couverture nuageuse est de **" + current.cloud + " %** \n";
+        nuages = "La couverture nuageuse est de **" + current.cloudcover + " %** \n";
     }
     nuages += "L'indice d'UV est de **" + current.uv + "** ";
     embed.setTitle("Météo pour " + location.name);
@@ -129,13 +133,13 @@ function manageWeatherResponse(weatherResponse) {
     embed.addField("Vent", vent);    
     embed.addField("Couverture nuageuse", nuages);
     if(condition !== null){
-        embed.setThumbnail("http:" + condition.icon); 
+        embed.setThumbnail(condition.weather_icons[0]);
     }
-    if (current.precip_mm !== 0) {
-        pluie = "Il a plu **" + current.precip_mm + " mm** pour l'instant";
+    if (current.precip!== 0) {
+        pluie = "Il a plu **" + current.precip + " mm** pour l'instant";
         embed.addField("Précipitations", pluie);
     }
-    embed.setTimestamp(current.last_updated);
+    embed.setTimestamp(current.observation_time);
     return embed;
 }
 
