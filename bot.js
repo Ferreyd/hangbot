@@ -122,21 +122,22 @@
             baseTown.forEach(function(town){
                 var promise = Tools.callWeather(apixuToken,town);
                 promise.then(function(result){
-                   const embed = Tools.manageWeatherResponse(result);
-                    bot.channels.get(msg.channel.id).send({embed});    
-                });
-            }),function(err){
-                bot.channels.get(msg.channel.id).send("Erreur lors de la requète");
-            };
+                        const embed = Tools.manageWeatherResponse(result);
+                        bot.channels.get(msg.channel.id).send({embed});    
+                    }, 
+                    function(err){
+                        bot.channels.get(msg.channel.id).send("Erreur lors de la requète");
+                    });
+            });
         }else{
             var town = content.replace('!meteo', '');
             var promise = Tools.callWeather(apixuToken,town);
             promise.then(function(result){
                 const embed = Tools.manageWeatherResponse(result);
                 bot.channels.get(msg.channel.id).send({embed});    
-            }), function(err){
+            }, function(err){
                 bot.channels.get(msg.channel.id).send("La ville " + town + " n'existe pas.")
-            };
+            });
         }  
     };
     const heure_command = (bot, msg) => {
